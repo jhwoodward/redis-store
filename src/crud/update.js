@@ -1,6 +1,6 @@
 var redis = require('redis')
 
-function update(type, key, value) {
+function one(type, key, value) {
   return new Promise((resolve, reject) => {
     client = redis.createClient();
     var multi = client.multi();
@@ -8,7 +8,6 @@ function update(type, key, value) {
     //update tags
     //get existing tags
     client.hget(type, key, function (err, rep) {
-
       if (!err) {
         var existing = JSON.parse(rep);
         if (existing.tags && existing.tags.length) {
@@ -40,5 +39,5 @@ function update(type, key, value) {
   });
 }
 
-module.exports = update;
+module.exports = { one };
 

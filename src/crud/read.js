@@ -1,6 +1,6 @@
 var redis = require('redis');
 
-function getOne(type, key) {
+function one(type, key) {
   var client = redis.createClient();
 
   return new Promise((resolve, reject) => {
@@ -11,7 +11,7 @@ function getOne(type, key) {
         } else {
           reject('not found');
         }
-        
+
       } else {
         reject(err);
       }
@@ -20,36 +20,43 @@ function getOne(type, key) {
   });
 }
 
-function getList(type) {
+function all(type) {
   return new Promise((resolve, reject) => {
     var client = redis.createClient();
     client.hgetall(type, function (err, rep) {
-      if (!err) {
-        var out = [];
-        for (var key in rep) {
-          out.push({ key: key, value: JSON.parse(rep[key]) })
-        }
-        resolve(out);
-      } else {
-        reject(err);
+      if (!rep) {
+        reject('not found');
+        client.quit();
+        return;
       }
+      if (err) {
+        reject(err);
+        client.quit();
+        return;
+      }
+      var out = [];
+      for (var key in rep) {
+        out.push({ key: key, value: JSON.parse(rep[key]) })
+      }
+      resolve(out);
       client.quit();
     });
 
   });
 }
 
-function getByTag(type, tag) {
+function list(type, tag) {
   return new Promise((resolve, reject) => {
     var client = redis.createClient();
 
-    client.smembers(type + ':' + tag, function (err, rep) {
+    client.smembers(type + ':' + tag, function (err, keys) {
       if (!err) {
-        if (rep && rep.length) {
-          client.hmget(type, rep, function (err2, rep2) {
+        if (keys && keys.length) {
+          client.hmget(type, keys, function (err2, items) {
             var out = [];
-            for (var i = 0; i < rep2.length; i++) {
-              out.push({ key: rep[i], value: JSON.parse(rep2[i]) })
+            for (var i = 0; i < items.length; i++) {
+              var value = JSON.parse(items[i]);
+              out.push(Object.assign(value, { key: keys[i] }));
             }
             resolve(out);
           });
@@ -66,4 +73,4 @@ function getByTag(type, tag) {
 
 }
 
-module.exports = { getOne, getList, getByTag };
+module.exports = { one, all, list };
