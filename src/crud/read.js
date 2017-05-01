@@ -53,6 +53,10 @@ function list(type, tag) {
       if (!err) {
         if (keys && keys.length) {
           client.hmget(type, keys, function (err2, items) {
+            if (err2) {
+              reject(err2);
+              return;
+            }
             var out = [];
             for (var i = 0; i < items.length; i++) {
               var value = JSON.parse(items[i]);

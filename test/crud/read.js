@@ -11,33 +11,29 @@ describe('Read', function () {
     { name: 'test3', value: 'wine', tags: ['drink'] }
   ];
 
-  beforeEach(function (done) {
+  before(done => {
     del.all(type).then(() => {
-      values.forEach((value, i) => {
-        create.one(type, value).then(k => {
-          expect(k).toExist();
-          if (i === values.length - 1) {
-            done();
-          }
-        });
+      create.list(type, values).then(keys => {
+        expect(keys.length).toEqual(3);
+        done();
       });
-    })
+    });
   });
 
-    it('should get all of type', function (done) {
-      read.all(type).then(result => {
-        expect(result).toExist();
-        expect(result.length).toEqual(3);
-        done();
-      });
+  it('should read all', done => {
+    read.all(type).then(result => {
+      expect(result).toExist();
+      expect(result.length).toEqual(3);
+      done();
     });
+  });
 
-    it('should get list by tag', function (done) {
-      read.list(type, 'food').then(result => {
-        expect(result).toExist();
-        expect(result.length).toEqual(2);
-        done();
-      });
+  it('should read list', function (done) {
+    read.list(type, 'food').then(result => {
+      expect(result).toExist();
+      expect(result.length).toEqual(2);
+      done();
     });
+  });
 
 });

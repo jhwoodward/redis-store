@@ -64,7 +64,7 @@ function all(type) {
 
     function removeTags(err, tags) {
       tags.forEach(tag => {
-        client.del(tag);
+        client.del(type + ':' + tag);
       });
       client.del('tags:' + type);
     }
