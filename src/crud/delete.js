@@ -7,7 +7,7 @@ function one(type, key) {
     var client = redis.createClient();
 
     read.one(type, key)
-      .then(item => { utils.removeTags(item, key, type); } )
+      .then(item => { return utils.removeTags(item, key, type); } )
       .then(() => {
         client.hdel(type, key, (err, rep) => {
           if (!err) {
