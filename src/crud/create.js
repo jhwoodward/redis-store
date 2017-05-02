@@ -51,17 +51,11 @@ function list(type, items) {
     items.forEach(item => {
       if (item.key) {
         keys.push(item.key);
-        create(type, item.key, item).then(checkComplete).catch(err => {
-          reject(err);
-          client.quit();
-        });
+        create(type, item.key, item).then(checkComplete).catch(terminate);
       } else {
         client.incr('key:' + type, (err, key) => {
           keys.push(key);
-          create(type, key, item).then(checkComplete).catch(err => {
-            reject(err);
-            client.quit();
-          });
+          create(type, key, item).then(checkComplete).catch(terminate);
         });
       }
       function checkComplete() {
@@ -69,6 +63,10 @@ function list(type, items) {
           resolve(keys);
           client.quit();
         }
+      }
+      function terminate(err) {
+        reject(err);
+        client.quit();
       }
     });
   });
