@@ -56,11 +56,10 @@ router.route('/crud/:type/tagged/:tagname').get(function (req, res) {
 });
 
 //update
-router.route('/crud/:type/:key').put(function (req, res) {
-  var key = req.params.key;
-  var value = req.body;
+router.route('/crud/:type').put(function (req, res) {
+  var item = req.body;
   var type = req.params.type;
-  update(type, key, value).then(result => {
+  update(type, item).then(result => {
     res.status(200).json(result);
   }).catch(error => {
     res.status(500).json(error);

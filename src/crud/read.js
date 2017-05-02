@@ -77,4 +77,19 @@ function list(type, tag) {
 
 }
 
-module.exports = { one, all, list };
+function tags(type) {
+  return new Promise((resolve, reject) => {
+    var client = redis.createClient();
+    client.smembers('tags:' + type, function (err, tags) {
+      if (!err) {
+        resolve(tags);
+      } else {
+        reject(err);
+      }
+      client.quit();
+    });
+  });
+
+}
+
+module.exports = { one, all, list, tags };

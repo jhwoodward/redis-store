@@ -7,21 +7,22 @@ var del = require('../../src/crud/delete');
 describe('Create', function () {
   var type = 'test';
 
-  beforeEach(function (done) {
+  beforeEach(done => {
     del.all(type).then(done);
   });
 
-  it('should create one', function (done) {
+  it('should create one', done => {
 
-    var value = { name: 'test', value: 'albatross', tags: ['bird'] };
+    var albatross = { name: 'test', tags: ['bird'] };
 
-    create.one(type, value).then(key => {
+    create.one(type, albatross).then(key => {
       expect(key).toExist();
+      albatross.key = key;
       return key;
     }).then(key => {
       return read.one(type, key).then(result => {
         expect(result).toExist();
-        expect(result.value).toEqual('albatross');
+        expect(result.name).toEqual(albatross.name);
       });
     }).then(() => {
       return read.list(type, 'bird').then(result => {
@@ -29,7 +30,7 @@ describe('Create', function () {
       });
     }).then(() => {
        var client = redis.createClient();
-       client.smembers('tags:' + type, function (err, rep) {
+       client.smembers('tags:' + type, (err, rep) => {
         expect(rep.length).toEqual(1);
         expect(rep[0]).toEqual('bird');
         client.quit();
@@ -38,23 +39,23 @@ describe('Create', function () {
     });
   });
 
-  it('should create list', function (done) {
+  it('should create list', done => {
 
     var type = 'test';
-    var values = [
-      { name: 'test1', value: 'beer', tags: ['food', 'drink'] },
-      { name: 'test2', value: 'chips', tags: ['food'] },
-      { name: 'test3', value: 'wine', tags: ['drink'] }
+    var stuff = [
+      { name: 'beer', tags: ['food', 'drink'] },
+      { name: 'chips', tags: ['food'] },
+      { name: 'wine', tags: ['drink'] }
     ];
 
-    create.list(type, values).then(keys => {
+    create.list(type, stuff).then(keys => {
       expect(keys).toExist();
       expect(keys.length).toEqual(3);
       return keys;
     }).then(keys => {
       read.one(type, keys[1]).then(result => {
         expect(result).toExist();
-        expect(result.value).toEqual('chips');
+        expect(result.name).toEqual('chips');
         done();
       });
     });

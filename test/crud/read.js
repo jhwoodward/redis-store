@@ -5,15 +5,15 @@ var create = require('../../src/crud/create');
 
 describe('Read', function () {
   var type = 'test';
-  var values = [
-    { name: 'test1', value: 'beer', tags: ['food', 'drink'] },
-    { name: 'test2', value: 'chips', tags: ['food'] },
-    { name: 'test3', value: 'wine', tags: ['drink'] }
+  var stuff = [
+    { name: 'beer', tags: ['food', 'drink'] },
+    { name: 'chips', tags: ['food'] },
+    { name: 'wine', tags: ['drink'] }
   ];
 
   before(done => {
     del.all(type).then(() => {
-      create.list(type, values).then(keys => {
+      create.list(type, stuff).then(keys => {
         expect(keys.length).toEqual(3);
         done();
       });
@@ -28,7 +28,7 @@ describe('Read', function () {
     });
   });
 
-  it('should read list', function (done) {
+  it('should read list', done => {
     read.list(type, 'food').then(result => {
       expect(result).toExist();
       expect(result.length).toEqual(2);

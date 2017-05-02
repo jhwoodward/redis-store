@@ -1,35 +1,45 @@
 var redis = require('redis')
+var utils = require('./utils');
 
-function one(type, key, value) {
+function one(type, itemWithKey) {
   return new Promise((resolve, reject) => {
     client = redis.createClient();
-    var multi = client.multi();
+
+    var key = itemWithKey.key;
+    if (!key) {
+      throw new Error('Object must have a key property to update');
+    }
+    var item = Object.assign({}, itemWithKey);
+    delete item.key;
 
     //update tags
     //get existing tags
     client.hget(type, key, function (err, rep) {
+
       if (!err) {
         var existing = JSON.parse(rep);
-        if (existing.tags && existing.tags.length) {
-          for (var i = 0; i < existing.tags.length; i++) {
-            multi.srem(type + ':' + existing.tags[i], key);
-          }
-        }
 
-        if (value.tags && value.tags.length) {
-          for (var i = 0; i < value.tags.length; i++) {
-            multi.sadd(type + ':' + value.tags[i], key);
-          }
-        }
-        multi.hset(type, key, JSON.stringify(value));
+        utils.removeTags(existing, key, type).then(() => {
+          var multi = client.multi();
 
-        multi.exec(function (err2, replies) {
-          if (!err) {
-            resolve({ key });
-          } else {
-            reject(err2);
+          if (item.tags && item.tags.length) {
+            for (var i = 0; i < item.tags.length; i++) {
+              multi.sadd(type + ':' + item.tags[i], key);
+              multi.sadd('tags:' + type, item.tags[i])
+            }
           }
-          client.quit();
+
+          multi.hset(type, key, JSON.stringify(item));
+
+          multi.exec(function (err2, replies) {
+            if (!err) {
+              resolve();
+            } else {
+              reject(err2);
+            }
+            client.quit();
+          });
+
         });
 
       } else {
