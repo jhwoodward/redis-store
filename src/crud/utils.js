@@ -6,7 +6,9 @@ var api = {
     var client = redis.createClient();
     return new Promise((resolve, reject) => {
       if (!item.tags) {
+        client.quit();
         resolve();
+        return;
       }
       item.tags.forEach((tag, i) => {
         client.srem(type + ':' + tag, key, (err, rep) => {

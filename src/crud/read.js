@@ -7,7 +7,9 @@ function one(type, key) {
     client.hget(type, key, function (err, rep) {
       if (!err) {
         if (rep !== null) {
-          resolve(JSON.parse(rep));
+          var item = JSON.parse(rep);
+          item.key = key;
+          resolve(item);
         } else {
           reject('not found');
         }
@@ -34,11 +36,13 @@ function all(type) {
         client.quit();
         return;
       }
-      var out = [];
+      var items = [];
       for (var key in rep) {
-        out.push({ key: key, value: JSON.parse(rep[key]) })
+        var item = JSON.parse(rep[key]);
+        item.key = key;
+        items.push(item);
       }
-      resolve(out);
+      resolve(items);
       client.quit();
     });
 
