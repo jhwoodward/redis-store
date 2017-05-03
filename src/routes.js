@@ -1,8 +1,8 @@
 ﻿var router = require('express').Router();
 
-require('./routes/create')(router);
-require('./routes/read')(router);
-require('./routes/update')(router);
-require('./routes/delete')(router);
+require('./routes/create.route')(router);
+require('./routes/read.route')(router);
+require('./routes/update.route')(router);
+require('./routes/delete.route')(router);
 
 module.exports = router;
