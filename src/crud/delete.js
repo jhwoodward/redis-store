@@ -2,7 +2,7 @@ var redis = require('redis');
 var read = require('./read');
 var utils = require('./utils');
 
-function one(type, key) {
+function one(type, key, user) {
   return new Promise((resolve, reject) => {
     var client = redis.createClient();
 
@@ -23,7 +23,7 @@ function one(type, key) {
   });
 }
 
-function all(type) {
+function all(type, user) {
   return new Promise((resolve, reject) => {
     var client = redis.createClient();
     var multi = client.multi();

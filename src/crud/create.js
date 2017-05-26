@@ -1,28 +1,30 @@
 var redis = require('redis');
 
-function create(type, key, item) {
+function create(type, item, user) {
   return new Promise((resolve, reject) => {
     var client = redis.createClient();
-    client.hget(type, key, function (err, rep) {
+    client.hget(type, item.key, function (err, rep) {
       if (rep) {
-        reject('Item with key \'' + key + '\' already exists');
+        reject('Item with key \'' + item.key + '\' already exists');
         client.quit();
         return;
       }
+      item.created = new Date().getTime();
+      item.owner = user.key;
       var multi = client.multi();
       if (item.tags && item.tags.length) {
         for (var i = 0; i < item.tags.length; i++) {
-          multi.sadd(type + ':' + item.tags[i], key);
+          multi.sadd(type + ':' + item.tags[i], item.key);
           multi.sadd('tags:' + type, item.tags[i])
         }
       }
-      multi.hset(type, key, JSON.stringify(item));
+      multi.hset(type, item.key, JSON.stringify(item));
       multi.exec(function (err, replies) {
         if (err) {
           reject(err);
           client.quit();
         } else {
-          resolve(key);
+          resolve(item);
           client.quit();
         }
       });
@@ -30,32 +32,35 @@ function create(type, key, item) {
   });
 }
 
-function one(type, item) {
+function one(type, item, user) {
   return new Promise((resolve, reject) => {
     if (item.key) {
-      create(type, item.key, item).then(resolve).catch(reject);
+      create(type, item, user).then(resolve).catch(reject);
     } else {
       var client = redis.createClient();
       client.incr('key:' + type, (err, key) => {
         client.quit();
-        create(type, key, item).then(resolve).catch(reject);
+        item.key = key;
+        create(type, item, user).then(resolve).catch(reject);
       });
     }
+
   });
 }
 
-function list(type, items) {
+function list(type, items, user) {
   var keys = [];
   return new Promise((resolve, reject) => {
     var client = redis.createClient();
     items.forEach(item => {
       if (item.key) {
         keys.push(item.key);
-        create(type, item.key, item).then(checkComplete).catch(terminate);
+        create(type, item, user).then(checkComplete).catch(terminate);
       } else {
         client.incr('key:' + type, (err, key) => {
           keys.push(key);
-          create(type, key, item).then(checkComplete).catch(terminate);
+          item.key = key;
+          create(type, item).then(checkComplete).catch(terminate);
         });
       }
       function checkComplete() {

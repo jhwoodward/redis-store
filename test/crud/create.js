@@ -14,10 +14,12 @@ describe('Create', function () {
   it('should create one', done => {
     var albatross = { name: 'albatross', tags: ['bird'] };
 
-    create.one(type, albatross).then(key => {
-      expect(key).toExist();
-      albatross.key = key;
-      return key;
+    create.one(type, albatross).then(item => {
+      expect(item).toExist();
+      expect(item.key).toExist();
+      expect(item.created).toExist();
+      albatross = item;
+      return item.key;
     }).then(key => {
       return read.one(type, key).then(result => {
         expect(result).toExist();
@@ -41,10 +43,11 @@ describe('Create', function () {
   it('should create one with key', done => {
     var albatross = { key: 'albatross', name: 'albatross', tags: ['bird'] };
 
-    create.one(type, albatross).then(key => {
-      expect(key).toExist();
-      expect(key).toEqual('albatross');
-      return key;
+    create.one(type, albatross).then(item => {
+      expect(item).toExist();
+      expect(item.key).toEqual('albatross');
+      expect(item.created).toExist();
+      return item.key;
     }).then(key => {
       return read.one(type, key).then(result => {
         expect(result).toExist();
@@ -69,9 +72,10 @@ describe('Create', function () {
     var albatross = { key: 'albatross', name: 'albatross', tags: ['bird'] };
     var gannet = { key: 'albatross', name: 'gannet', tags: ['bird'] };
 
-    create.one(type, albatross).then(key => {
-      expect(key).toExist();
-      expect(key).toEqual('albatross');
+    create.one(type, albatross).then(item => {
+      expect(item).toExist();
+      expect(item.key).toEqual('albatross');
+      expect(item.created).toExist();
     }).then(() => {
        create.one(type, gannet).catch(err => {
          expect(err).toExist();

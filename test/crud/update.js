@@ -11,9 +11,9 @@ describe('Update', function () {
 
   before(done => {
     del.all(type).then(() => {
-      return create.one(type, tiger).then(key => {
-        expect(key).toExist();
-        tiger.key = key;
+      return create.one(type, tiger).then(item => {
+        expect(item.key).toExist();
+        tiger.key = item.key;
         done();
       });
     })

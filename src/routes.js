@@ -1,8 +1,12 @@
 ﻿var router = require('express').Router();
 
-require('./routes/create.route')(router);
-require('./routes/read.route')(router);
-require('./routes/update.route')(router);
-require('./routes/delete.route')(router);
+module.exports = function(passport) {
+  require('./routes/user.route')(router, passport);
+  require('./routes/create.route')(router, passport);
+  require('./routes/read.route')(router, passport);
+  require('./routes/update.route')(router, passport);
+  require('./routes/delete.route')(router, passport);
+  return router;
+};
 
-module.exports = router;
+

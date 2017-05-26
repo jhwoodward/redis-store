@@ -1,11 +1,11 @@
 var config = require('./server.config');
 
 module.exports = function (req, res, next) {
-  
+  var i, origin;
    // Cors allow
   if (req.headers.origin) {
-    for (let i = 0; i < config.origins.length; i++) {
-      const origin = config.origins[i];
+    for (i = 0; i < config.origins.length; i++) {
+      origin = config.origins[i];
       if (req.headers.origin.indexOf(origin) > -1) {
         res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
         break;
@@ -16,7 +16,7 @@ module.exports = function (req, res, next) {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
   
   // Request headers you wish to allow
-  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   
   // Set to true if you need the website to include cookies in the requests sent
   // to the API (e.g. in case you use sessions)

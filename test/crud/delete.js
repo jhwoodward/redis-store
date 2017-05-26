@@ -11,9 +11,9 @@ describe('Delete', function () {
 
   beforeEach(done => {
     del.all(type).then(() => {
-      return create.one(type, elephant).then(key => {
-        expect(key).toExist();
-        elephant.key = key;
+      return create.one(type, elephant).then(item => {
+        expect(item.key).toExist();
+        elephant.key = item.key;
       });
     }).then(() => {
       return new Promise((resolve, reject) => {
@@ -25,9 +25,9 @@ describe('Delete', function () {
         });
       });
     }).then(() => {
-      create.one(type, snake).then(key => {
-        expect(key).toExist();
-        snake.key = key;
+      create.one(type, snake).then(item => {
+        expect(item.key).toExist();
+        snake = item;
         done();
       });
     });

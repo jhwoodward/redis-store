@@ -5,7 +5,7 @@ var api = {
   removeTags: (item, key, type) => {
     var client = redis.createClient();
     return new Promise((resolve, reject) => {
-      if (!item.tags) {
+      if (!item.tags || !item.tags.length) {
         client.quit();
         resolve();
         return;
