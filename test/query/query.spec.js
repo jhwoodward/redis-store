@@ -2,6 +2,7 @@ var expect = require('expect');
 var del = require('../../src/crud/delete');
 var query = require('../../src/query/query');
 var create = require('../../src/crud/create');
+var paramValues = require('../../src/query/paramValues');
 
 describe('Query', function () {
   var type = 'teststore3';
@@ -11,42 +12,42 @@ describe('Query', function () {
   var template2 = { owner: 'asdf', key: 'sds' };
   var forkedFrom1 = { owner: 'zzz', key: 'ax' };
   var owner1stuff = [
-    { 
-      name: 'beer', 
-      tags: ['food', 'drink'], 
+    {
+      name: 'beer',
+      tags: ['food', 'drink'],
       template: template1,
 
-  },
-    { 
-      name: 'chips', 
-      tags: ['food'], 
-      template: template1, 
+    },
+    {
+      name: 'chips',
+      tags: ['food'],
+      template: template1,
       forkedFrom: forkedFrom1
-  }, 
-  { 
-    name: 'wine', 
-    tags: ['drink'], 
-    forkedFrom: forkedFrom1  
-  }
+    },
+    {
+      name: 'wine',
+      tags: ['drink'],
+      forkedFrom: forkedFrom1
+    }
   ];
   var owner2stuff = [
-    { 
-      name: 'orange', 
-      tags: ['food'], 
+    {
+      name: 'orange',
+      tags: ['food'],
       template: template1,
 
-  },
-    { 
-      name: 'sausages', 
-      tags: ['food'], 
-      template: template2, 
+    },
+    {
+      name: 'sausages',
+      tags: ['food'],
+      template: template2,
       forkedFrom: forkedFrom1
-  }, 
-  { 
-    name: 'water', 
-    tags: ['drink'], 
-    forkedFrom: forkedFrom1  
-  }
+    },
+    {
+      name: 'water',
+      tags: ['drink'],
+      forkedFrom: forkedFrom1
+    }
   ];
 
   before(done => {
@@ -55,9 +56,9 @@ describe('Query', function () {
       let count = 0;
       owner1stuff.forEach(item => {
         create.one(type, item, owner1).then(() => {
-          count ++;
+          count++;
           if (count === owner1stuff.length) {
-            ownercount ++;
+            ownercount++;
             if (ownercount === 2) {
               done();
             }
@@ -69,9 +70,9 @@ describe('Query', function () {
       let count = 0;
       owner2stuff.forEach(item => {
         create.one(type, item, owner2).then(() => {
-          count ++;
+          count++;
           if (count === owner2stuff.length) {
-            ownercount ++;
+            ownercount++;
             if (ownercount === 2) {
               done();
             }
@@ -139,11 +140,27 @@ describe('Query', function () {
 
   it('should allow multiple tags', done => {
     params = {
-      tag: ['food','drink']
+      tag: ['food', 'drink']
     };
     query(type, params).then(result => {
       expect(result).toExist();
       expect(result.length).toEqual(1);
+      done();
+    });
+  });
+
+  it('should return param values', done => {
+    paramValues(type, 'tag').then(result => {
+      expect(result).toExist();
+      expect(result.length).toEqual(2);
+      done();
+    });
+  });
+
+  it('should return param values', done => {
+    paramValues(type, 'owner').then(result => {
+      expect(result).toExist();
+      expect(result.length).toEqual(2);
       done();
     });
   });
