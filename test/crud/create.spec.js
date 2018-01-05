@@ -5,33 +5,34 @@ var read = require('../../src/crud/read');
 var del = require('../../src/crud/delete');
 
 describe('Create', function () {
-  var type = 'test';
+  var type = 'teststore';
+  var user = { key: 'testowner' };
 
   beforeEach(done => {
-    del.all(type).then(done);
+    del.all(type, user).then(done);
   });
 
   it('should create one', done => {
     var albatross = { name: 'albatross', tags: ['bird'] };
 
-    create.one(type, albatross).then(item => {
+    create.one(type, albatross, user).then(item => {
       expect(item).toExist();
       expect(item.key).toExist();
       expect(item.created).toExist();
       albatross = item;
       return item.key;
     }).then(key => {
-      return read.one(type, key).then(result => {
+      return read.one(type, key, user).then(result => {
         expect(result).toExist();
         expect(result.name).toEqual(albatross.name);
       });
     }).then(() => {
-      return read.list(type, 'bird').then(result => {
+      return read.list(type, 'bird', user).then(result => {
         expect(result.length).toEqual(1);
       });
     }).then(() => {
        var client = redis.createClient();
-       client.smembers('tags:' + type, (err, rep) => {
+       client.smembers('tags:' + type + ':' + user.key, (err, rep) => {
         expect(rep.length).toEqual(1);
         expect(rep[0]).toEqual('bird');
         client.quit();
@@ -43,23 +44,23 @@ describe('Create', function () {
   it('should create one with key', done => {
     var albatross = { key: 'albatross', name: 'albatross', tags: ['bird'] };
 
-    create.one(type, albatross).then(item => {
+    create.one(type, albatross, user).then(item => {
       expect(item).toExist();
       expect(item.key).toEqual('albatross');
       expect(item.created).toExist();
       return item.key;
     }).then(key => {
-      return read.one(type, key).then(result => {
+      return read.one(type, key, user).then(result => {
         expect(result).toExist();
         expect(result.name).toEqual(albatross.name);
       });
     }).then(() => {
-      return read.list(type, 'bird').then(result => {
+      return read.list(type, 'bird', user).then(result => {
         expect(result.length).toEqual(1);
       });
     }).then(() => {
        var client = redis.createClient();
-       client.smembers('tags:' + type, (err, rep) => {
+       client.smembers('tags:' + type + ':' + user.key, (err, rep) => {
         expect(rep.length).toEqual(1);
         expect(rep[0]).toEqual('bird');
         client.quit();
@@ -72,7 +73,7 @@ describe('Create', function () {
     var albatross = { key: 'albatross', name: 'albatross', tags: ['bird'] };
     var gannet = { key: 'albatross', name: 'gannet', tags: ['bird'] };
 
-    create.one(type, albatross).then(item => {
+    create.one(type, albatross, user).then(item => {
       expect(item).toExist();
       expect(item.key).toEqual('albatross');
       expect(item.created).toExist();
@@ -91,12 +92,12 @@ describe('Create', function () {
       { name: 'wine', tags: ['drink'] }
     ];
 
-    create.list(type, stuff).then(keys => {
+    create.list(type, stuff, user).then(keys => {
       expect(keys).toExist();
       expect(keys.length).toEqual(3);
       return keys;
     }).then(keys => {
-      read.one(type, keys[1]).then(result => {
+      read.one(type, keys[1], user).then(result => {
         expect(result).toExist();
         expect(result.name).toEqual('chips');
         done();

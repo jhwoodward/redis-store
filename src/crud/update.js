@@ -1,7 +1,10 @@
 var redis = require('redis')
 var utils = require('./utils');
+var postUpdate = require('../query/postUpdate');
 
-function one(type, itemWithKey) {
+function one(type, itemWithKey, user) {
+  var baseType = type;
+  type += ':' + user.key; // keys are unique to users, not globally
   return new Promise((resolve, reject) => {
     client = redis.createClient();
 
@@ -33,7 +36,7 @@ function one(type, itemWithKey) {
 
           multi.exec(function (err2, replies) {
             if (!err) {
-              resolve();
+              postUpdate(baseType, existing, item).then(resolve).catch(reject);
             } else {
               reject(err2);
             }

@@ -7,7 +7,7 @@ var api = {
     return new Promise((resolve, reject) => {
       if (!item.tags || !item.tags.length) {
         client.quit();
-        resolve();
+        resolve(item);
         return;
       }
       item.tags.forEach((tag, i) => {
@@ -28,13 +28,13 @@ var api = {
                 }
                 if (i === item.tags.length - 1) {
                   client.quit();
-                  resolve();
+                  resolve(item);
                 }
               });
             } else {
               if (i === item.tags.length - 1) {
                 client.quit();
-                resolve();
+                resolve(item);
               }
             }
           });

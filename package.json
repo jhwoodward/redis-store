@@ -1,10 +1,10 @@
 {
   "name": "redis-store",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Simple api to store entities in redis",
   "main": "server.js",
   "scripts": {
-    "test": "mocha ./test/crud"
+    "test": "mocha ./test/*/"
   },
   "repository": {
     "type": "git",
@@ -27,10 +27,13 @@
     "jsonwebtoken": "^7.4.1",
     "passport": "^0.3.2",
     "passport-jwt": "^2.2.1",
-    "redis": "^2.7.1"
+    "redis": "^2.7.1",
+    "simple-array-diff": "^1.1.0"
   },
   "devDependencies": {
     "expect": "^1.20.2",
+    "gulp": "^3.9.1",
+    "gulp-rsync": "0.0.8",
     "mocha": "^3.2.0"
   }
 }

@@ -39,6 +39,7 @@ module.exports = router => {
 
   router.route('/user/all').get(function (req, res) {
     read.all('user').then(result => {
+      result.forEach(user => delete user.password);
       res.status(200).json(result);
     }).catch(error => {
       res.status(500).json(error);
@@ -47,6 +48,7 @@ module.exports = router => {
 
   router.route('/user/one/:key').get(function (req, res) {
     read.one('user',req.params.key).then(result => {
+      delete result.password;
       res.status(200).json(result);
     }).catch(error => {
       res.status(500).json(error);

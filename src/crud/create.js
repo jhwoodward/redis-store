@@ -1,6 +1,8 @@
 var redis = require('redis');
+var postCreate = require('../query/postCreate');
 
 function create(type, item, user) {
+  type += ':' + user.key; // keys are unique to users, not globally
   return new Promise((resolve, reject) => {
     var client = redis.createClient();
     client.hget(type, item.key, function (err, rep) {
@@ -35,13 +37,17 @@ function create(type, item, user) {
 function one(type, item, user) {
   return new Promise((resolve, reject) => {
     if (item.key) {
-      create(type, item, user).then(resolve).catch(reject);
+      create(type, item, user).then(() => {
+        postCreate(type, item).then(resolve).catch(reject);
+      }).catch(reject);
     } else {
       var client = redis.createClient();
       client.incr('key:' + type, (err, key) => {
         client.quit();
         item.key = key;
-        create(type, item, user).then(resolve).catch(reject);
+        create(type, item, user).then(() => {
+          postCreate(type, item).then(resolve).catch(reject);
+        }).catch(reject);
       });
     }
 
@@ -60,7 +66,7 @@ function list(type, items, user) {
         client.incr('key:' + type, (err, key) => {
           keys.push(key);
           item.key = key;
-          create(type, item).then(checkComplete).catch(terminate);
+          create(type, item, user).then(checkComplete).catch(terminate);
         });
       }
       function checkComplete() {

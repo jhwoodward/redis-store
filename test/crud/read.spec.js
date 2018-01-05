@@ -4,7 +4,8 @@ var read = require('../../src/crud/read');
 var create = require('../../src/crud/create');
 
 describe('Read', function () {
-  var type = 'test';
+  var type = 'teststore';
+  var user = { key: 'testowner' };
   var stuff = [
     { name: 'beer', tags: ['food', 'drink'] },
     { name: 'chips', tags: ['food'] },
@@ -12,8 +13,8 @@ describe('Read', function () {
   ];
 
   before(done => {
-    del.all(type).then(() => {
-      create.list(type, stuff).then(keys => {
+    del.all(type, user).then(() => {
+      create.list(type, stuff, user).then(keys => {
         expect(keys.length).toEqual(3);
         done();
       });
@@ -21,7 +22,7 @@ describe('Read', function () {
   });
 
   it('should read all', done => {
-    read.all(type).then(result => {
+    read.all(type, user).then(result => {
       expect(result).toExist();
       expect(result.length).toEqual(3);
       done();
@@ -29,7 +30,7 @@ describe('Read', function () {
   });
 
   it('should read list', done => {
-    read.list(type, 'food').then(result => {
+    read.list(type, 'food', user).then(result => {
       expect(result).toExist();
       expect(result.length).toEqual(2);
       done();

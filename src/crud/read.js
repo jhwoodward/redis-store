@@ -1,6 +1,7 @@
 var redis = require('redis');
 
-function one(type, key) {
+function one(type, key, user) {
+  type += ':' + user.key; // keys are unique to users, not globally
   var client = redis.createClient();
 
   return new Promise((resolve, reject) => {
@@ -22,12 +23,13 @@ function one(type, key) {
   });
 }
 
-function all(type) {
+function all(type, user) {
+  type += ':' + user.key; // keys are unique to users, not globally
   return new Promise((resolve, reject) => {
     var client = redis.createClient();
     client.hgetall(type, function (err, rep) {
       if (!rep) {
-        reject('not found');
+        resolve([]);
         client.quit();
         return;
       }
@@ -49,7 +51,8 @@ function all(type) {
   });
 }
 
-function list(type, tag) {
+function list(type, tag, user) {
+  type += ':' + user.key; // keys are unique to users, not globally
   return new Promise((resolve, reject) => {
     var client = redis.createClient();
 
@@ -64,7 +67,10 @@ function list(type, tag) {
             var out = [];
             for (var i = 0; i < items.length; i++) {
               var value = JSON.parse(items[i]);
-              out.push(Object.assign(value, { key: keys[i] }));
+              if (value) {
+                out.push(Object.assign(value, { key: keys[i] }));
+              }
+         
             }
             resolve(out);
           });
@@ -81,7 +87,8 @@ function list(type, tag) {
 
 }
 
-function tags(type) {
+function tags(type, user) {
+  type += ':' + user.key;
   return new Promise((resolve, reject) => {
     var client = redis.createClient();
     client.smembers('tags:' + type, function (err, tags) {

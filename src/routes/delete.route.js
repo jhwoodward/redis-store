@@ -1,12 +1,20 @@
 ﻿var del = require('../crud/delete');
+var postDelete = require('../query/postDelete');
 
 module.exports = (router, passport) => {
 
   router.route('/one/:type/:key').delete(passport.authenticate('jwt', { session: false }),function (req, res) {
-    var type = req.params.type + ':' + req.user.key;
+    var type = req.params.type;// + ':' + req.user.key;
     var key = req.params.key;
+
     del.one(type, key, req.user).then(() => {
-      res.status(200).send();
+
+      postDelete(req.params.type, item).then(function() {
+        res.status(200).send();
+      }).catch(error => {
+        res.status(500).json(error);
+      });
+     
     }).catch(error => {
       res.status(500).json(error);
     });
