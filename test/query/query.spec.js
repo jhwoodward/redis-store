@@ -137,5 +137,16 @@ describe('Query', function () {
     });
   });
 
+  it('should allow multiple tags', done => {
+    params = {
+      tag: ['food','drink']
+    };
+    query(type, params).then(result => {
+      expect(result).toExist();
+      expect(result.length).toEqual(1);
+      done();
+    });
+  });
+
 
 });
