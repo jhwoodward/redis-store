@@ -19,7 +19,7 @@ module.exports = (router, passport) => {
       res.status(500).json(error);
     });
   });
-
+/*
   router.route('/all/:type').delete(passport.authenticate('jwt', { session: false }),function (req, res) {
     var type = req.params.type + ':' + req.user.key;
     del.all(type, req.user).then(() => {
@@ -28,6 +28,6 @@ module.exports = (router, passport) => {
       res.status(500).json(error);
     });
   });
-
+*/
 
 }

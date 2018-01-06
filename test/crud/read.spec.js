@@ -13,7 +13,7 @@ describe('Read', function () {
   ];
 
   before(done => {
-    del.all(type, user).then(() => {
+    del.all(type).then(() => {
       create.list(type, stuff, user).then(keys => {
         expect(keys.length).toEqual(3);
         done();
@@ -22,7 +22,7 @@ describe('Read', function () {
   });
 
   it('should read all', done => {
-    read.all(type, user).then(result => {
+    read.all(type, user.key).then(result => {
       expect(result).toExist();
       expect(result.length).toEqual(3);
       done();
@@ -30,7 +30,7 @@ describe('Read', function () {
   });
 
   it('should read list', done => {
-    read.list(type, 'food', user).then(result => {
+    read.list(type, ['testowner:' + stuff[0].key, 'testowner:' + stuff[1].key]).then(result => {
       expect(result).toExist();
       expect(result.length).toEqual(2);
       done();

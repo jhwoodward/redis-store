@@ -1,35 +1,34 @@
 var redis = require('redis');
+var utils = require('../utils');
+var addParam = utils.addParam;
+var join = utils.join;
 
 function postCreate(type, item) {
 
   return new Promise((resolve, reject) => {
     
-    var itemKey = item.owner + ':' + item.key;
+    var itemKey = join(item.owner, item.key);
     var client = redis.createClient();
     var batch = client.batch();
 
     if (item.owner) {
-      batch.sadd(type + ':owner:' + item.owner, itemKey);
-      batch.sadd(type + ':owner', item.owner);
+      addParam(batch, type, 'owner', item.owner, itemKey);
     }
 
     if (item.tags && item.tags.length) {
       for (var i = 0; i < item.tags.length; i++) {
-        batch.sadd(type + ':tag:' + item.tags[i], itemKey);
-        batch.sadd(type + ':tag', item.tags[i]);
+        addParam(batch, type, 'tag', item.tags[i], itemKey)
       }
     }
 
     if (item.forkedFrom) {
-      var forkedFromKey = item.forkedFrom.owner + ':' + item.forkedFrom.key;
-      batch.sadd(type + ':forkedFrom:' + forkedFromKey, itemKey);
-      batch.sadd(type + ':forkedFrom', forkedFromKey);
+      var forkedFromKey = join(item.forkedFrom.owner, item.forkedFrom.key);
+      addParam(batch, type, 'forkedFrom', forkedFromKey, itemKey);
     }
 
     if (item.template) {
-      var templateKey = item.template.owner + ':' + item.template.key;
-      batch.sadd(type + ':template:' + templateKey, itemKey);
-      batch.sadd(type + ':template', templateKey);
+      var templateKey = join(item.template.owner, item.template.key);
+      addParam(batch, type, 'template', templateKey, itemKey);
     }
 
     batch.exec(function (err, replies) {

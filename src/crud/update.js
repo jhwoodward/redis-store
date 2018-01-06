@@ -1,27 +1,34 @@
 var redis = require('redis')
-var utils = require('./utils');
+var join = require('../utils').join;
 var postUpdate = require('../query/postUpdate');
 
-function one(type, itemWithKey, user) {
-  var baseType = type;
-  type += ':' + user.key; // keys are unique to users, not globally
+function one(type, item, user) {
+
+  if (!item.key) {
+    throw new Error('Object must have a key property to update');
+  }
+  let itemKey = item.key;
+  if (type !== 'user') {
+    itemKey = user.key + ':' + itemKey; // keys are unique to users, not globally
+  }
+
   return new Promise((resolve, reject) => {
     client = redis.createClient();
 
-    var key = itemWithKey.key;
-    if (!key) {
-      throw new Error('Object must have a key property to update');
-    }
-    var item = Object.assign({}, itemWithKey);
-    delete item.key;
-
-    //update tags
-    //get existing tags
-    client.hget(type, key, function (err, rep) {
+    client.hget(type, itemKey, function (err, rep) {
 
       if (!err) {
         var existing = JSON.parse(rep);
 
+        client.hset(type, itemKey, JSON.stringify(item), (err2, replies) => {
+          if (!err) {
+            postUpdate(type, existing, item).then(resolve).catch(reject);
+          } else {
+            reject(err2);
+          }
+          client.quit();
+        });
+/*
         utils.removeTags(existing, key, type).then(() => {
           var multi = client.multi();
 
@@ -44,7 +51,7 @@ function one(type, itemWithKey, user) {
           });
 
         });
-
+*/
       } else {
         reject(err);
       }

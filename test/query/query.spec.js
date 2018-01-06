@@ -5,7 +5,7 @@ var create = require('../../src/crud/create');
 var paramValues = require('../../src/query/paramValues');
 
 describe('Query', function () {
-  var type = 'teststore3';
+  var type = 'teststore6';
   var owner1 = { key: 'testowner3' };
   var owner2 = { key: 'testowner4' };
   var template1 = { owner: 'abc', key: 'a' };
@@ -51,32 +51,10 @@ describe('Query', function () {
   ];
 
   before(done => {
-    var ownercount = 0;
-    del.all(type, owner1).then(() => {
-      let count = 0;
-      owner1stuff.forEach(item => {
-        create.one(type, item, owner1).then(() => {
-          count++;
-          if (count === owner1stuff.length) {
-            ownercount++;
-            if (ownercount === 2) {
-              done();
-            }
-          }
-        });
-      });
-    });
-    del.all(type, owner2).then(() => {
-      let count = 0;
-      owner2stuff.forEach(item => {
-        create.one(type, item, owner2).then(() => {
-          count++;
-          if (count === owner2stuff.length) {
-            ownercount++;
-            if (ownercount === 2) {
-              done();
-            }
-          }
+    del.all(type).then(() => {
+      create.list(type, owner1stuff, owner1).then(() => {
+        create.list(type, owner2stuff, owner2).then(() => {
+          done();
         });
       });
     });
@@ -164,6 +142,5 @@ describe('Query', function () {
       done();
     });
   });
-
 
 });

@@ -1,5 +1,9 @@
 var redis = require('redis');
 var arrayDiff = require('simple-array-diff');
+var utils = require('../utils');
+var removeParam = utils.removeParam;
+var addParam = utils.addParam;
+var join = utils.join;
 
 function postUpdate(type, before, after) {
 
@@ -17,19 +21,13 @@ function postUpdate(type, before, after) {
 
     if (result.removed.length) {
       for (var i = 0; i < result.removed.length; i++) {
-        batch.srem(type + ':tag:' + result.removed[i], itemKey);
-        batch.scard(type + ':tag:' + result.removed[i], (err, n) => {
-          if (!n) {
-            batch.srem(type + ':tag', result.removed[i]);
-          }
-        });
+        removeParam(batch, type, 'tag', result.removed[i], itemKey);
       }
     }
 
     if (result.added.length) {
       for (var i = 0; i < result.added.length; i++) {
-        batch.sadd(type + ':tag:' + result.added[i], itemKey);
-        batch.sadd(type + ':tag', result.added[i]);
+        addParam(batch, type, 'tag', result.added[i], itemKey);
       }
     }
 

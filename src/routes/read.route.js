@@ -10,18 +10,6 @@ module.exports = (router, passport) => {
     read.one(type, key, user).then(result => {
       res.status(200).json(result);
     }).catch(error => {
-      if (user === 'tutorial') {
-        type += ':' + user;
-        read.one(type, key).then(result => {
-          res.status(200).json(result);
-        }).catch(error => {
-          if (error === 'not found') {
-            res.status(404).json(error);
-          } else {
-            res.status(500).json(error);
-          }
-        });
-      }
       if (error === 'not found') {
         res.status(404).json(error);
       } else {
@@ -50,9 +38,7 @@ module.exports = (router, passport) => {
   router.route('/all/:type/:user').get(function (req, res) {
     var type = req.params.type;
     var user = req.params.user;
-    type += ':' + user;
-
-    read.all(type).then(result => {
+    read.all(type, user).then(result => {
       result = result.map(item => {
         return {
           key: item.key,
@@ -72,9 +58,8 @@ module.exports = (router, passport) => {
   router.route('/list/:type/:user/:tag').get(function (req, res) {
     var type = req.params.type;
     var user = req.params.user;
-    type += ':' + user;
     var tag = req.params.tag;
-    read.list(type, tag).then(result => {
+    read.list(type, tag, user).then(result => {
       res.status(200).json(result);
     }).catch(error => {
       res.status(500).json(error);
@@ -85,7 +70,7 @@ module.exports = (router, passport) => {
   router.route('/tags/:type/:user').get(function (req, res) {
     var type = req.params.type;
     var user = req.params.user;
-    type += ':' + user;
+    type += ':' + user.key;
     read.tags(type).then(result => {
       res.status(200).json(result);
     }).catch(error => {

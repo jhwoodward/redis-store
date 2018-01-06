@@ -1,5 +1,6 @@
 var redis = require('redis');
-
+var read = require('../crud/read');
+var join = require('../utils').join;
 /*
 
 key1 = {a,b,c,d}
@@ -25,20 +26,36 @@ function query(type, params) {
     if (params[key]) {
       if (Array.isArray(params[key])) {
         params[key].forEach(val => {
-          sets.push(type + ':' + key + ':' + val);
+          sets.push(join(type, key, val));
         });
        
       } else {
-        sets.push(type + ':' + key + ':' + params[key]);
+        sets.push(join(type, key, params[key]));
       }
      
     }
   }
 
   return new Promise((resolve, reject) => {
-    client.sinter(sets, function (err, rep) {
+    client.sinter(sets, function (err, keys) {
       if (!err) {
-        resolve(rep);
+        read.list(type, keys).then(items => {
+          resolve(items);
+        }).catch(reject);
+        /*
+        rep.forEach(ownerkey => {
+          var owner = ownerkey.split(':')[0];
+          var key = ownerkey.split(':')[1];
+       
+          read.one(type, key, owner).then(item => {
+            //maybe trim the item first ?
+            items.push(item);
+            if (items.length === rep.length) {
+              resolve(items);
+            }
+          }).catch(reject);
+        });*/
+
       } else {
         reject(err);
       }

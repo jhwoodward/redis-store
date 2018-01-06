@@ -11,19 +11,10 @@ describe('Delete', function () {
   var snake = { name: 'snake' };
 
   beforeEach(done => {
-    del.all(type, user).then(() => {
+    del.all(type).then(() => {
       return create.one(type, elephant, user).then(item => {
         expect(item.key).toExist();
         elephant.key = item.key;
-      });
-    }).then(() => {
-      return new Promise((resolve, reject) => {
-        var client = redis.createClient();
-        client.smembers(type + ':' + user.key  + ':animal', (err, rep) => {
-          expect(rep).toExist();
-          expect(rep.length).toEqual(1);
-          resolve();
-        });
       });
     }).then(() => {
       create.one(type, snake, user).then(item => {
@@ -35,15 +26,15 @@ describe('Delete', function () {
   });
 
   afterEach(done => {
-    del.all(type, user).then(done);
+    del.all(type).then(done);
   });
 
   it('should delete one', done => {
     var client = redis.createClient();
-    read.one(type, elephant.key, user).then(result => {
+    read.one(type, elephant.key, user.key).then(result => {
       expect(result).toExist();
       expect(result.name).toEqual(elephant.name);
-    }).then(() => {
+    })/*.then(() => {
       return new Promise((resolve, reject) => {
         var client = redis.createClient();
         client.smembers(type + ':' + user.key + ':animal', (err, rep) => {
@@ -52,47 +43,25 @@ describe('Delete', function () {
           resolve();
         });
       });
-    }).then(() => {
+    })*/.then(() => {
       return del.one(type, elephant.key, user);
     }).then(() => {
-      return read.one(type, elephant.key, user).catch(err => {
+      return read.one(type, elephant.key, user.key).catch(err => {
         expect(err).toEqual('not found');
-      })
-    }).then(() => {
-      return new Promise((resolve, reject) => {
-        client.exists(type + ':' + user.key + ':animal', (err, rep) => {
-          expect(rep).toEqual(0);
-          resolve();
-        });
-      });
-    }).then(() => {
-      client.smembers('tags:' + type + ':' + user.key, (err, rep) => {
-        expect(rep.length).toEqual(0);
         done();
-      });
+      })
     });
   });
 
   it('should delete all', done => {
-    read.all(type, user).then(result => {
+    read.all(type).then(result => {
       expect(result).toExist();
     }).then(() => {
-      return del.all(type, user);
+      return del.all(type);
     }).then(() => {
-      return read.all(type, user).catch(err => {
-        expect(err).toEqual('not found');
-      });
-    }).then(() => {
-      var client = redis.createClient();
-      client.get('key:' + type + ':' + user.key, (err, rep) => {
-        expect(rep).toNotExist();
-        client.get(type + ':' + user.key + ':animal', (err, rep) => {
-          expect(rep).toNotExist();
-          client.get('tags:' + type + ':' + user.key, (err, rep) => {
-            expect(rep).toNotExist();
-            done();
-          });
-        });
+      return read.all(type).then(result => {
+        expect(result.length).toBeFalsy();
+        done();
       });
     });
   });

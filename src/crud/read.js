@@ -1,11 +1,15 @@
 var redis = require('redis');
 
-function one(type, key, user) {
-  type += ':' + user.key; // keys are unique to users, not globally
+function one(type, key, userKey) {
+  let itemKey = key;
+  if (type !== 'user') {
+    itemKey = userKey + ':' + key; // keys are unique to users, not globally
+  }
+
   var client = redis.createClient();
 
   return new Promise((resolve, reject) => {
-    client.hget(type, key, function (err, rep) {
+    client.hget(type, itemKey, function (err, rep) {
       if (!err) {
         if (rep !== null) {
           var item = JSON.parse(rep);
@@ -23,8 +27,26 @@ function one(type, key, user) {
   });
 }
 
-function all(type, user) {
-  type += ':' + user.key; // keys are unique to users, not globally
+function list(type, keys) {
+
+  return new Promise((resolve, reject) => {
+    if (!keys.length) {
+      resolve([]);
+    }
+    var client = redis.createClient();
+    client.hmget(type, keys, function (err, items) {
+      if (!err) {
+        resolve(items.map(item => JSON.parse(item)));
+      } else {
+        reject(err);
+      }
+      client.quit();
+  });
+});
+}
+
+function all(type) {
+
   return new Promise((resolve, reject) => {
     var client = redis.createClient();
     client.hgetall(type, function (err, rep) {
@@ -50,9 +72,12 @@ function all(type, user) {
 
   });
 }
+/*
 
-function list(type, tag, user) {
-  type += ':' + user.key; // keys are unique to users, not globally
+function list(type, tag, userKey) {
+  if (type !== 'user') {
+    type += ':' + userKey; // keys are unique to users, not globally
+  }
   return new Promise((resolve, reject) => {
     var client = redis.createClient();
 
@@ -87,8 +112,8 @@ function list(type, tag, user) {
 
 }
 
-function tags(type, user) {
-  type += ':' + user.key;
+function tags(type, userKey) {
+  type += ':' + userKey;
   return new Promise((resolve, reject) => {
     var client = redis.createClient();
     client.smembers('tags:' + type, function (err, tags) {
@@ -102,5 +127,5 @@ function tags(type, user) {
   });
 
 }
-
-module.exports = { one, all, list, tags };
+*/
+module.exports = { one, all, list };

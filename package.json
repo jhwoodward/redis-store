@@ -4,6 +4,7 @@
   "description": "Simple api to store entities in redis",
   "main": "server.js",
   "scripts": {
+    "start": "node ./src/server.js",
     "test": "mocha ./test/*/"
   },
   "repository": {
