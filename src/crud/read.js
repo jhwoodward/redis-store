@@ -36,7 +36,7 @@ function list(type, keys) {
     var client = redis.createClient();
     client.hmget(type, keys, function (err, items) {
       if (!err) {
-        resolve(items.map(item => JSON.parse(item)));
+        resolve(items.filter(item => !!item).map(item => JSON.parse(item)));
       } else {
         reject(err);
       }

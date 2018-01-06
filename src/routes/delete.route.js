@@ -1,5 +1,4 @@
 ﻿var del = require('../crud/delete');
-var postDelete = require('../query/postDelete');
 
 module.exports = (router, passport) => {
 
@@ -8,13 +7,7 @@ module.exports = (router, passport) => {
     var key = req.params.key;
 
     del.one(type, key, req.user).then(() => {
-
-      postDelete(req.params.type, item).then(function() {
-        res.status(200).send();
-      }).catch(error => {
-        res.status(500).json(error);
-      });
-     
+      res.status(200).send();
     }).catch(error => {
       res.status(500).json(error);
     });
